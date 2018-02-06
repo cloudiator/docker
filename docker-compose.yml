@@ -1,0 +1,44 @@
+version: '2'
+
+services:
+  discovery-store:
+    image: mariadb:latest
+    restart: always
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+    ports:
+      - 3306:3306
+  discovery-agent:
+    depends_on:
+      - "discovery-store"
+      - "kafka"
+    image: cloudiator/discovery-agent:latest
+    restart: always
+    environment:
+      - JPA_USER=${MYSQL_USER}
+      - JPA_PASSWORD=${MYSQL_PASSWORD}
+      - JPA_DATABASE=${MYSQL_DATABASE}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - JPA_HOST=discovery-store
+  matchmaking-agent:
+    depends_on:
+      - "kafka"
+    image: cloudiator/matchmaking-agent:latest
+    restart: always
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  rest-server:
+    depends_on:
+      - "kafka"
+    image: cloudiator/rest-server:latest
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SECURITY_API_KEY
+    ports:
+      - 9000:9000
+  kafka:
+    image: spotify/kafka
+    restart: always
