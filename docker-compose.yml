@@ -1,16 +1,54 @@
 version: '2'
 
 services:
+  vm-store:
+    image: mariadb:latest
+    restart: always
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=vm
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+  vm-agent:
+    depends_on:
+      - "vm-store"
+      - "kafka"
+    image: cloudiator/vm-agent:latest
+    restart: always
+    environment:
+      - JPA_USER=${DATABASE_USER}
+      - JPA_PASSWORD=${DATABASE_PASSWORD}
+      - JPA_DATABASE=vm
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - JPA_HOST=vm-store
+  node-store:
+    image: mariadb:latest
+    restart: always
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=node
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+  node-agent:
+    depends_on:
+      - "node-store"
+      - "kafka"
+    image: cloudiator/node-agent:latest
+    restart: always
+    environment:
+      - JPA_USER=${DATABASE_USER}
+      - JPA_PASSWORD=${DATABASE_PASSWORD}
+      - JPA_DATABASE=node
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - JPA_HOST=node-store
   discovery-store:
     image: mariadb:latest
     restart: always
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE
-      - MYSQL_USER
-      - MYSQL_PASSWORD
-    ports:
-      - 3306:3306
+      - MYSQL_DATABASE=discovery
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
   discovery-agent:
     depends_on:
       - "discovery-store"
@@ -18,9 +56,9 @@ services:
     image: cloudiator/discovery-agent:latest
     restart: always
     environment:
-      - JPA_USER=${MYSQL_USER}
-      - JPA_PASSWORD=${MYSQL_PASSWORD}
-      - JPA_DATABASE=${MYSQL_DATABASE}
+      - JPA_USER=${DATABASE_USER}
+      - JPA_PASSWORD=${DATABASE_PASSWORD}
+      - JPA_DATABASE=discovery
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - JPA_HOST=discovery-store
   matchmaking-agent:
