@@ -68,6 +68,26 @@ services:
     restart: always
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  job-store:
+    image: mariadb:latest
+    restart: always
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=job
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+  job-agent:
+    depends_on:
+      - "job-store"
+      - "kafka"
+    image: cloudiator/job-agent:latest
+    restart: always
+    environment:
+      - JPA_USER=${DATABASE_USER}
+      - JPA_PASSWORD=${DATABASE_PASSWORD}
+      - JPA_DATABASE=job
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - JPA_HOST=job-store
   rest-server:
     depends_on:
       - "kafka"
