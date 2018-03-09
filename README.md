@@ -11,6 +11,7 @@ Installation of Cloudiator using Docker (docker-compose).
 * install git
 * git clone the repository: git clone https://github.com/cloudiator/docker.git
 * edit the env-template to e.g. change the API-Key used to secure the REST-endpoint
+* cp the env-template to .env: cp env-template .env
 * run docker-compose up
 
 ## Use
