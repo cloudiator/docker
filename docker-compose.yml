@@ -108,6 +108,8 @@ services:
       - JPA_DATABASE=user
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - JPA_HOST=user-store
+      - AUTH_MODE=${AUTH_MODE}
+      - AUTH_TOKEN=${AUTH_TOKEN}
   rest-server:
     depends_on:
       - "kafka"
