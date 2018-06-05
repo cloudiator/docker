@@ -21,6 +21,7 @@ services:
       - JPA_DATABASE=vm
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - JPA_HOST=vm-store
+      - LOGSTASH_HOST=logstash:5000
   node-store:
     image: mariadb:latest
     restart: always
@@ -41,6 +42,7 @@ services:
       - JPA_DATABASE=node
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - JPA_HOST=node-store
+      - LOGSTASH_HOST=logstash:5000
   discovery-store:
     image: mariadb:latest
     restart: always
@@ -118,6 +120,7 @@ services:
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - SECURITY_API_KEY
+      - LOGSTASH_HOST=logstash:5000
     ports:
       - 9000:9000
   kafka:
