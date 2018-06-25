@@ -1,4 +1,4 @@
 DATABASE_USER=cloudiator
 DATABASE_PASSWORD=cloudiator
-AUTH_MODE=testmode
-AUTH_TOKEN=envtemplateToken
+AUTH_MODE=SINGLE
+AUTH_TOKEN=secure
