@@ -122,6 +122,12 @@ services:
       - LOGSTASH_HOST=logstash:5000
     ports:
       - 9000:9000
+  encryption-agent:
+    depends_on:
+      - "kafka"
+    image: cloudiator/encryption-agent:latest
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
   kafka:
     image: spotify/kafka
     restart: always
