@@ -54,6 +54,7 @@ services:
   discovery-agent:
     depends_on:
       - "discovery-store"
+      - "user-agent"
       - "kafka"
     image: cloudiator/discovery-agent:latest
     restart: always
@@ -63,6 +64,14 @@ services:
       - JPA_DATABASE=discovery
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - JPA_HOST=discovery-store
+  install-agent:
+    depends_on:
+      - "kafka"
+    image: cloudiator/install-agent:latest
+    restart: always
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - LOGSTASH_HOST=logstash:5000
   matchmaking-agent:
     depends_on:
       - "kafka"
@@ -91,6 +100,21 @@ services:
       - JPA_DATABASE=job
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - JPA_HOST=job-store
+  scheduler-agent:
+    depends_on:
+      - "kafka"
+    image: cloudiator/scheduler-agent:latest
+    restart: always
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  lance-agent:
+      depends_on:
+        - "kafka"
+      image: cloudiator/lance-agent:latest
+      restart: always
+      environment:
+        - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+        - ETCD_HOST=${HOST_IP}
   user-store:
     image: mariadb:latest
     restart: always
@@ -128,6 +152,31 @@ services:
     image: cloudiator/encryption-agent:latest
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  etcd:
+    image: quay.io/coreos/etcd
+    ports:
+      - 4001:4001
+      - 2380:2380
+      - 2379:2379
+    environment:
+      - ETCD_NAME=etcd0
+      - ETCD_ADVERTISE_CLIENT_URLS=http://${HOST_IP}:2379,http://${HOST_IP}:4001
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379,http://0.0.0.0:4001
+      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${HOST_IP}:2380
+      - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
+      - ETCD_INITIAL_CLUSTER=etcd0=http://${HOST_IP}:2380
+
+  etcd-browser:
+    build: ./etcd-browser
+    ports:
+      - 8000:8000
+    environment:
+      ETCD_HOST: etcd
+      ETCD_PORT: 2379
+    depends_on:
+      - "etcd"
+
   kafka:
     image: spotify/kafka
     restart: always
@@ -148,9 +197,6 @@ services:
       context: elasticsearch/
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-    ports:
-      - "9200:9200"
-      - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
 
@@ -160,8 +206,6 @@ services:
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
-    ports:
-      - "5000:5000"
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     depends_on:
