@@ -172,8 +172,8 @@ services:
     ports:
       - 8000:8000
     environment:
-      ETCD_HOST: etcd
-      ETCD_PORT: 2379
+      - ETCD_HOST=etcd
+      - ETCD_PORT=2379
     depends_on:
       - "etcd"
 
@@ -183,8 +183,8 @@ services:
     image: wurstmeister/kafka
     restart: always
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      - KAFKA_ADVERTISED_HOST_NAME=kafka
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
 
   zookeeper:
     image: wurstmeister/zookeeper
