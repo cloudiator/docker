@@ -75,6 +75,7 @@ services:
   matchmaking-agent:
     depends_on:
       - "kafka"
+    hostname: kafka
     image: cloudiator/matchmaking-agent:latest
     restart: always
     environment:
