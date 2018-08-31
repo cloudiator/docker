@@ -1,246 +1,323 @@
 version: '2'
 
 services:
+
+  # Storage for the virtual machines
+  # Uses mariadb
   vm-store:
     image: mariadb:latest
     restart: always
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=vm
-      - MYSQL_USER=${DATABASE_USER}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    - MYSQL_DATABASE=vm
+    - MYSQL_USER=${DATABASE_USER}
+    - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+
+  # Agent responsible for starting virtual machines
   vm-agent:
     depends_on:
-      - "vm-store"
-      - "kafka"
+    - "vm-store"
+    - "kafka"
+    - "discovery-agent"
+    - "user-agent"
     image: cloudiator/vm-agent:latest
     restart: always
     environment:
-      - JPA_USER=${DATABASE_USER}
-      - JPA_PASSWORD=${DATABASE_PASSWORD}
-      - JPA_DATABASE=vm
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JPA_HOST=vm-store
-      - LOGSTASH_HOST=logstash:5000
+    - JPA_USER=${DATABASE_USER}
+    - JPA_PASSWORD=${DATABASE_PASSWORD}
+    - JPA_URL=jdbc:mysql://vm-store:3306/vm
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - LOGSTASH_HOST=logstash:5000
+
+  # Storage for nodes
+  # Uses mariadb
   node-store:
     image: mariadb:latest
     restart: always
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=node
-      - MYSQL_USER=${DATABASE_USER}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    - MYSQL_DATABASE=node
+    - MYSQL_USER=${DATABASE_USER}
+    - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+
+  # Agent responsible for starting nodes
   node-agent:
     depends_on:
-      - "node-store"
-      - "kafka"
+    - "node-store"
+    - "kafka"
     image: cloudiator/node-agent:latest
     restart: always
     environment:
-      - JPA_USER=${DATABASE_USER}
-      - JPA_PASSWORD=${DATABASE_PASSWORD}
-      - JPA_DATABASE=node
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JPA_HOST=node-store
-      - LOGSTASH_HOST=logstash:5000
+    - JPA_USER=${DATABASE_USER}
+    - JPA_PASSWORD=${DATABASE_PASSWORD}
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - JPA_URL=jdbc:mysql://node-store:3306/node
+    - LOGSTASH_HOST=logstash:5000
+
+  # Storage for discovery
+  # Uses mariadb
   discovery-store:
     image: mariadb:latest
     restart: always
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=discovery
-      - MYSQL_USER=${DATABASE_USER}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    - MYSQL_DATABASE=discovery
+    - MYSQL_USER=${DATABASE_USER}
+    - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+
+  # Agent responsible for the discovery
+  # of cloud offers
   discovery-agent:
     depends_on:
-      - "discovery-store"
-      - "user-agent"
-      - "kafka"
+    - "discovery-store"
+    - "user-agent"
+    - "kafka"
     image: cloudiator/discovery-agent:latest
     restart: always
     environment:
-      - JPA_USER=${DATABASE_USER}
-      - JPA_PASSWORD=${DATABASE_PASSWORD}
-      - JPA_DATABASE=discovery
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JPA_HOST=discovery-store
+    - JPA_USER=${DATABASE_USER}
+    - JPA_PASSWORD=${DATABASE_PASSWORD}
+    - JPA_URL=jdbc:mysql://discovery-store:3306/discovery
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  # Agent responsible for installing
+  # environments on allocated nodes
   install-agent:
     depends_on:
-      - "kafka"
+    - "kafka"
     image: cloudiator/install-agent:latest
     restart: always
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - LOGSTASH_HOST=logstash:5000
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - LOGSTASH_HOST=logstash:5000
+
+  # Agent containing the matchmaking logic
+  # Responsible for generating node candidates
+  # Responsible for selecting best node candidate
   matchmaking-agent:
     depends_on:
-      - "kafka"
+    - "kafka"
     image: cloudiator/matchmaking-agent:latest
     restart: always
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - LOGSTASH_HOST=logstash:5000
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - LOGSTASH_HOST=logstash:5000
+
+  # Storage for jobs
+  # Uses mariadb
   job-store:
     image: mariadb:latest
     restart: always
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=job
-      - MYSQL_USER=${DATABASE_USER}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    - MYSQL_DATABASE=job
+    - MYSQL_USER=${DATABASE_USER}
+    - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+
+  # Agent responsible for jobs
   job-agent:
     depends_on:
-      - "job-store"
-      - "kafka"
+    - "job-store"
+    - "kafka"
     image: cloudiator/job-agent:latest
+    restart: always
+    environment:
+    - JPA_USER=${DATABASE_USER}
+    - JPA_PASSWORD=${DATABASE_PASSWORD}
+    - JPA_URL=jdbc:mysql://job-store:3306/job
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  # Storage for schedules
+  # Uses mariadb
+  schedule-store:
+    image: mariadb:latest
+    restart: always
+    environment:
+    - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    - MYSQL_DATABASE=schedule
+    - MYSQL_USER=${DATABASE_USER}
+    - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+
+  # Agent responsible for scheduling
+  # Receives task to be scheduled and
+  # handles the instantiation workflow
+  scheduler-agent:
+    depends_on:
+    - "kafka"
+    - "schedule-store"
+    image: cloudiator/scheduler-agent:latest
     restart: always
     environment:
       - JPA_USER=${DATABASE_USER}
       - JPA_PASSWORD=${DATABASE_PASSWORD}
-      - JPA_DATABASE=job
+      - JPA_URL=jdbc:mysql://schedule-store:3306/schedule
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JPA_HOST=job-store
-  scheduler-agent:
+
+  # Agent handling lance processes
+  lance-agent:
     depends_on:
-      - "kafka"
-    image: cloudiator/scheduler-agent:latest
+    - "kafka"
+    image: cloudiator/lance-agent:latest
     restart: always
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-  lance-agent:
-      depends_on:
-        - "kafka"
-      image: cloudiator/lance-agent:latest
-      restart: always
-      environment:
-        - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-        - ETCD_HOST=${HOST_IP}
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - JAVA_TOOL_OPTIONS=-Dlca.client.config.registry=etcdregistry -Dlca.client.config.registry.etcd.hosts=${HOST_IP}
+
+  # Storage for users of the system
+  # Uses mariadb
   user-store:
     image: mariadb:latest
     restart: always
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=user
-      - MYSQL_USER=${DATABASE_USER}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    - MYSQL_DATABASE=user
+    - MYSQL_USER=${DATABASE_USER}
+    - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+
+  # Agent responsible for user management
+  # authentication and authorisation
   user-agent:
     depends_on:
-      - "user-store"
-      - "kafka"
+    - "user-store"
+    - "kafka"
     image: cloudiator/user-agent:latest
     restart: always
     environment:
-      - JPA_USER=${DATABASE_USER}
-      - JPA_PASSWORD=${DATABASE_PASSWORD}
-      - JPA_DATABASE=user
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JPA_HOST=user-store
-      - AUTH_MODE=${AUTH_MODE}
-      - AUTH_TOKEN=${AUTH_TOKEN}
+    - JPA_USER=${DATABASE_USER}
+    - JPA_PASSWORD=${DATABASE_PASSWORD}
+    - JPA_DATABASE=user
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - JPA_HOST=user-store
+    - AUTH_MODE=${AUTH_MODE}
+    - AUTH_TOKEN=${AUTH_TOKEN}
+
+  # Server that exposes the main API
+  # Uses REST
+  # Partly autogenerated from Swagger
   rest-server:
     depends_on:
-      - "kafka"
+    - "kafka"
     image: cloudiator/rest-server:latest
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - LOGSTASH_HOST=logstash:5000
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - LOGSTASH_HOST=logstash:5000
     ports:
-      - 9000:9000
+    - 9000:9000
+
+  # Utility service
+  # Responsible for encrypting data
   encryption-agent:
     depends_on:
-      - "kafka"
+    - "kafka"
     image: cloudiator/encryption-agent:latest
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
+  # ETCD directory required by lance
   etcd:
     image: quay.io/coreos/etcd
     ports:
-      - 4001:4001
-      - 2380:2380
-      - 2379:2379
+    - 4001:4001
+    - 2380:2380
+    - 2379:2379
     environment:
-      - ETCD_NAME=etcd0
-      - ETCD_ADVERTISE_CLIENT_URLS=http://${HOST_IP}:2379,http://${HOST_IP}:4001
-      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379,http://0.0.0.0:4001
-      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${HOST_IP}:2380
-      - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
-      - ETCD_INITIAL_CLUSTER=etcd0=http://${HOST_IP}:2380
+    - ETCD_NAME=etcd0
+    - ETCD_ADVERTISE_CLIENT_URLS=http://${HOST_IP}:2379,http://${HOST_IP}:4001
+    - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379,http://0.0.0.0:4001
+    - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${HOST_IP}:2380
+    - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
+    - ETCD_INITIAL_CLUSTER=etcd0=http://${HOST_IP}:2380
 
+  # (optional)
+  # Can be used for debugging the etcd directory.
   etcd-browser:
     build: ./etcd-browser
     ports:
-      - 8000:8000
+    - 8000:8000
     environment:
-      - ETCD_HOST=etcd
-      - ETCD_PORT=2379
+    - ETCD_HOST=etcd
+    - ETCD_PORT=2379
     depends_on:
-      - "etcd"
+    - "etcd"
 
+  # Apache Kafka Broker
+  # Main communication hub
   kafka:
     depends_on:
-      - "zookeeper"
+    - "zookeeper"
     image: wurstmeister/kafka
     hostname: kafka
     restart: always
     environment:
-      - KAFKA_ADVERTISED_HOST_NAME=kafka
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+    - KAFKA_ADVERTISED_HOST_NAME=kafka
+    - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
 
+  # Apache Zookeeper
+  # used by Kafka
   zookeeper:
     image: wurstmeister/zookeeper
     restart: always
 
+  # (optional)
+  # can be used for debugging kafka broker
   kafka-manager:
     depends_on:
-      - "kafka"
-      - "zookeeper"
+    - "kafka"
+    - "zookeeper"
     image: sheepkiller/kafka-manager:latest
     environment:
-      - ZK_HOSTS=zookeeper:2181
-      - APPLICATION_SECRET=verySecureSecret
-      - KM_VERSION=1.3.3.17
+    - ZK_HOSTS=zookeeper:2181
+    - APPLICATION_SECRET=verySecureSecret
+    - KM_VERSION=1.3.3.17
     ports:
-      - 8080:9000
+    - 8080:9000
     volumes:
-      - ./kafka-manager:/kafka-manager-1.3.1.8/conf
+    - ./kafka-manager:/kafka-manager-1.3.1.8/conf
+
+  # (optional)
+  # ELK Stack is used for logging
   elasticsearch:
     build:
       context: elasticsearch/
     volumes:
-      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
 
+  # (optional)
+  # ELK Stack is used for logging
   logstash:
     build:
       context: logstash/
     volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+    - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     depends_on:
-      - elasticsearch
+    - elasticsearch
 
+  # (optional)
+  # ELK Stack is used for logging
   kibana:
     build:
       context: kibana/
     volumes:
-      - ./kibana/config/:/usr/share/kibana/config:ro
+    - ./kibana/config/:/usr/share/kibana/config:ro
     ports:
-      - "5601:5601"
+    - "5601:5601"
     depends_on:
-      - elasticsearch
+    - elasticsearch
 
+  # (optional)
+  # Monitoring of docker containers
   cadvisor:
     image: google/cadvisor:latest
     restart: always
     ports:
-      - "8081:8080"
+    - "8081:8080"
     volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-    
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
