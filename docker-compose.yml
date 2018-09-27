@@ -2,6 +2,18 @@ version: '2'
 
 services:
 
+  # User Interface
+  # nginx server with user interface
+  interface:
+    image: cloudiator/user-interface:development
+    volumes:
+    - .interface//appConfig.template:/usr/share/nginx/html/appConfig.template
+    ports:
+    - "8080:80"
+    environment:
+    - API_URL=http://rest-server:9000
+    command: sh -c "envsubst \"`env | awk -F = '{printf \" $$%s\", $$1}'`\" < /usr/share/nginx/html/appConfig.template > /usr/share/nginx/html/assets/appConfig.json && exec nginx -g 'daemon off;'"
+
   # Storage for the virtual machines
   # Uses mariadb
   vm-store:
@@ -148,10 +160,10 @@ services:
     image: cloudiator/scheduler-agent:latest
     restart: always
     environment:
-      - JPA_USER=${DATABASE_USER}
-      - JPA_PASSWORD=${DATABASE_PASSWORD}
-      - JPA_URL=jdbc:mysql://schedule-store:3306/schedule
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - JPA_USER=${DATABASE_USER}
+    - JPA_PASSWORD=${DATABASE_PASSWORD}
+    - JPA_URL=jdbc:mysql://schedule-store:3306/schedule
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
   # Agent handling lance processes
   lance-agent:
