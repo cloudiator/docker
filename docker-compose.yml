@@ -12,6 +12,8 @@ services:
     - "8080:80"
     environment:
     - API_URL=http://${HOST_IP}:9000
+    - AUTH_MODE=${AUTH_MODE}
+    - AUTH_TOKEN=${AUTH_TOKEN}
     command: sh -c "envsubst \"`env | awk -F = '{printf \" $$%s\", $$1}'`\" < /usr/share/nginx/html/appConfig.template > /usr/share/nginx/html/assets/appConfig.json && exec nginx -g 'daemon off;'"
 
   # Storage for the virtual machines
