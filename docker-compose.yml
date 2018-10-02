@@ -199,9 +199,8 @@ services:
     environment:
     - JPA_USER=${DATABASE_USER}
     - JPA_PASSWORD=${DATABASE_PASSWORD}
-    - JPA_DATABASE=user
+    - JPA_URL=jdbc:mysql://secure-store:3306/secureStore
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-    - JPA_HOST=user-store
     - AUTH_MODE=${AUTH_MODE}
     - AUTH_TOKEN=${AUTH_TOKEN}
 
