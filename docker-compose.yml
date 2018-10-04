@@ -225,6 +225,9 @@ services:
     image: cloudiator/encryption-agent:latest
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    volumes:
+      - /opt/data/password
+      - /opt/data/salt
 
   # Database used by the securestore-agent
   secure-store:
