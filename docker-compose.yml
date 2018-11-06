@@ -389,7 +389,7 @@ services:
       - SPARK_MASTER_PORT=7077
     ports:
       - 7077:7077
-      - 8080:8080   
+      - 8181:8080   
 
   # (optional)
   # Managing of running docker containers
