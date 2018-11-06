@@ -226,8 +226,8 @@ services:
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     volumes:
-      - /opt/data/password
-      - /opt/data/salt
+    - /opt/data/password
+    - /opt/data/salt
 
   # Database used by the securestore-agent
   secure-store:
@@ -242,15 +242,23 @@ services:
   # Responsible for storing secured variables
   securestore-agent:
     depends_on:
-      - kafka
-      - encryption-agent
-      - secure-store
+    - kafka
+    - encryption-agent
+    - secure-store
     image: cloudiator/securestore-agent:latest
     environment:
     - JPA_USER=${DATABASE_USER}
     - JPA_PASSWORD=${DATABASE_PASSWORD}
     - JPA_URL=jdbc:mysql://secure-store:3306/secureStore
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  yaml-agent:
+    depends_on:
+    - kafka
+    image: cloudiator/yaml-agent:latest
+    environment:
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
 
   # ETCD directory required by lance
   etcd:
@@ -382,3 +390,18 @@ services:
     ports:
       - 7077:7077
       - 8080:8080   
+
+  # (optional)
+  # Managing of running docker containers
+  portainer:
+    image: portainer/portainer
+    restart: always
+    ports:
+    - "8083:9000"
+    command: -H unix:///var/run/docker.sock
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - portainer_data:/data
+
+volumes:
+  portainer_data:
