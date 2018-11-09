@@ -104,6 +104,8 @@ services:
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     - LOGSTASH_HOST=logstash:5000
+    - INSTALLER_SPARK_MASTER_IP=${HOST_IP}
+    - INSTALLER_SPARK_MASTER_PORT=7077
 
   # Agent containing the matchmaking logic
   # Responsible for generating node candidates
@@ -176,6 +178,16 @@ services:
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     - JAVA_TOOL_OPTIONS=-Dlca.client.config.registry=etcdregistry -Dlca.client.config.registry.etcd.hosts=${HOST_IP}
+
+  # Agent handling Spark processes
+  spark-agent:
+    depends_on:
+    - "kafka"
+    image: cloudiator/spark-agent:latest
+    restart: always
+    environment:
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - LIVY_SERVER=${HOST_IP}:8998  
 
   # Storage for users of the system
   # Uses mariadb
