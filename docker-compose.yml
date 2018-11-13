@@ -406,6 +406,28 @@ services:
     - /sys:/sys:ro
     - /var/lib/docker/:/var/lib/docker:ro
 
+ # (optional, only required if Spark jobs need to be executed)
+  livy-server:
+    image: cloudiator/livy-server:latest
+    restart: always
+    environment:
+      - SPARK_MASTER_ENDPOINT=yes
+      - SPARK_MASTER_PORT=7077
+    volumes:
+      - /tmp:/tmp
+    ports:
+      - 8998:8998
+  # (optional, only required if Spark jobs need to be executed)    
+  spark-master:
+    image: cloudiator/spark-master:latest
+    restart: always
+    environment:
+      - SPARK_MASTER_UI_PORT=8080
+      - SPARK_MASTER_PORT=7077
+    ports:
+      - 7077:7077
+      - 8181:8080   
+
   # (optional)
   # Managing of running docker containers
   portainer:
