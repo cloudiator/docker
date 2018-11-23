@@ -42,6 +42,10 @@ services:
     - JPA_URL=jdbc:mysql://vm-store:3306/vm
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     - LOGSTASH_HOST=logstash:5000
+    - STATISTICS_ENABLED=true
+    - STATISTICS_INFLUX_URL=http://influx:8086
+    - STATISTICS_INFLUX_USER=cloudiator
+    - STATISTICS_INFLUX_PASSWORD=${INFLUX_PASSWORD}
 
   # Storage for nodes
   # Uses mariadb
@@ -104,6 +108,8 @@ services:
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     - LOGSTASH_HOST=logstash:5000
+    - INSTALLER_SPARK_MASTER_IP=${HOST_IP}
+    - INSTALLER_SPARK_MASTER_PORT=7077
 
   # Agent containing the matchmaking logic
   # Responsible for generating node candidates
@@ -201,6 +207,16 @@ services:
     - JPA_URL=jdbc:mysql://faas-store:3306/faas
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
+  # Agent handling Spark processes
+  spark-agent:
+    depends_on:
+    - "kafka"
+    image: cloudiator/spark-agent:latest
+    restart: always
+    environment:
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - LIVY_SERVER=${HOST_IP}:8998
+
   # Storage for users of the system
   # Uses mariadb
   user-store:
@@ -250,8 +266,8 @@ services:
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     volumes:
-      - /opt/data/password
-      - /opt/data/salt
+    - /opt/data/password
+    - /opt/data/salt
 
   # Database used by the securestore-agent
   secure-store:
@@ -266,15 +282,23 @@ services:
   # Responsible for storing secured variables
   securestore-agent:
     depends_on:
-      - kafka
-      - encryption-agent
-      - secure-store
+    - kafka
+    - encryption-agent
+    - secure-store
     image: cloudiator/securestore-agent:latest
     environment:
     - JPA_USER=${DATABASE_USER}
     - JPA_PASSWORD=${DATABASE_PASSWORD}
     - JPA_URL=jdbc:mysql://secure-store:3306/secureStore
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  yaml-agent:
+    depends_on:
+    - kafka
+    image: cloudiator/yaml-agent:latest
+    environment:
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
 
   # ETCD directory required by lance
   etcd:
@@ -320,6 +344,35 @@ services:
   zookeeper:
     image: wurstmeister/zookeeper
     restart: always
+
+  # Influx DB (optional)
+  # used to collect statistics
+  influx:
+    image: influxdb:latest
+    ports:
+    - "8086:8086"
+    environment:
+    - INFLUXDB_DB=cloudiator
+    - INFLUXDB_ADMIN_USER=admin
+    - INFLUXDB_ADMIN_PASSWORD=${INFLUX_PASSWORD}
+    - INFLUXDB_USER=cloudiator
+    - INFLUXDB_USER_PASSWORD=${INFLUX_PASSWORD}
+    volumes:
+    - /var/lib/influxdb
+
+  # Chronograf (optional)
+  chronograf:
+    image: chronograf:latest
+    depends_on:
+    - "influx"
+    volumes:
+    - /var/lib/chronograf
+    ports:
+    - "8888:8888"
+    environment:
+    - INFLUXDB_URL=http://${HOST_IP}:8086
+    - INFLUXDB_USERNAME=cloudiator
+    - INFLUXDB_PASSWORD=${INFLUX_PASSWORD}
 
   # (optional)
   # can be used for debugging kafka broker
@@ -384,3 +437,40 @@ services:
     - /var/run:/var/run:rw
     - /sys:/sys:ro
     - /var/lib/docker/:/var/lib/docker:ro
+
+  # (optional, only required if Spark jobs need to be executed)
+  livy-server:
+    image: cloudiator/livy-server:latest
+    restart: always
+    environment:
+    - SPARK_MASTER_ENDPOINT=${HOST_IP}
+    - SPARK_MASTER_PORT=7077
+    volumes:
+    - /tmp:/tmp
+    ports:
+    - 8998:8998
+  # (optional, only required if Spark jobs need to be executed)
+  spark-master:
+    image: cloudiator/spark-master:latest
+    restart: always
+    environment:
+    - SPARK_MASTER_UI_PORT=8080
+    - SPARK_MASTER_PORT=7077
+    ports:
+    - 7077:7077
+    - 8181:8080
+
+  # (optional)
+  # Managing of running docker containers
+  portainer:
+    image: portainer/portainer
+    restart: always
+    ports:
+    - "8083:9000"
+    command: -H unix:///var/run/docker.sock
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - portainer_data:/data
+
+volumes:
+  portainer_data:
