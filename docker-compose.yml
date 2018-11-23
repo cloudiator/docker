@@ -177,6 +177,30 @@ services:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     - JAVA_TOOL_OPTIONS=-Dlca.client.config.registry=etcdregistry -Dlca.client.config.registry.etcd.hosts=${HOST_IP}
 
+  # Storage for functions
+  # Uses mariadb
+  faas-store:
+    image: mariadb:latest
+    restart: always
+    environment:
+    - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    - MYSQL_DATABASE=faas
+    - MYSQL_USER=${DATABASE_USER}
+    - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+
+  # Agent handling faas processes
+  faas-agent:
+    depends_on:
+    - "kafka"
+    - "faas-store"
+    image: cloudiator/faasagent:latest
+    restart: always
+    environment:
+    - JPA_USER=${DATABASE_USER}
+    - JPA_PASSWORD=${DATABASE_PASSWORD}
+    - JPA_URL=jdbc:mysql://faas-store:3306/faas
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
   # Storage for users of the system
   # Uses mariadb
   user-store:
