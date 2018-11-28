@@ -447,8 +447,9 @@ services:
     - SPARK_MASTER_PORT=7077
     volumes:
     - /tmp:/tmp
-    ports:
-    - 8998:8998
+    #ports:
+    #- 8998:8998
+    network_mode: host
   # (optional, only required if Spark jobs need to be executed)
   spark-master:
     image: cloudiator/spark-master:latest
@@ -456,9 +457,10 @@ services:
     environment:
     - SPARK_MASTER_UI_PORT=8080
     - SPARK_MASTER_PORT=7077
-    ports:
-    - 7077:7077
-    - 8181:8080
+    #ports:
+    #- 7077:7077
+    #- 8181:8080
+    network_mode: host
 
   # (optional)
   # Managing of running docker containers
