@@ -292,6 +292,8 @@ services:
     - JPA_URL=jdbc:mysql://secure-store:3306/secureStore
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
+  # Responsible for parsing a job description given
+  # as YAML format (optional)
   yaml-agent:
     depends_on:
     - kafka
@@ -338,6 +340,7 @@ services:
     environment:
     - KAFKA_ADVERTISED_HOST_NAME=kafka
     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+    - KAFKA_MESSAGE_MAX_BYTES=41943040
 
   # Apache Zookeeper
   # used by Kafka
