@@ -199,7 +199,7 @@ services:
     depends_on:
     - "kafka"
     - "faas-store"
-    image: cloudiator/faasagent:latest
+    image: cloudiator/faas-agent:latest
     restart: always
     environment:
     - JPA_USER=${DATABASE_USER}
