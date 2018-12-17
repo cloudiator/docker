@@ -5,7 +5,7 @@ services:
   # User Interface
   # nginx server with user interface
   interface:
-    image: cloudiator/user-interface:development
+    image: cloudiator/user-interface:latest
     volumes:
     - ./interface/appConfig.template:/usr/share/nginx/html/appConfig.template
     ports:
