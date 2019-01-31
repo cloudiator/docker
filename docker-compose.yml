@@ -257,6 +257,26 @@ services:
     ports:
     - 9000:9000
 
+  # Storage for monitoring management
+  # Uses mariadb
+  monitoring-store:
+    image: mariadb:latest
+    restart: always
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=user
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+
+  monitoring-agent:
+    image: cloudiator/monitoring-agent
+    restart: always
+    environment:
+      - JPA_USER=${DATABASE_USER}
+      - JPA_PASSWORD=${DATABASE_PASSWORD}
+      - JPA_URL=jdbc:mysql://monitoring-store:3306/user
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
   # Utility service
   # Responsible for encrypting data
   encryption-agent:
