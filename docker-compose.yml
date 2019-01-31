@@ -480,6 +480,11 @@ services:
     environment:
     - SPARK_MASTER_UI_PORT=8181
     - SPARK_MASTER_PORT=7077
+    - JMS_IP=${HOST_IP}
+    - JMS_PORT=61616
+    - APP_NAME=PythonPi
+    - METRIC_PATTERN='{"metricValue":"$${metric.value}","timestamp":"$${metric.timestamp}","metricName":"$${metric.name}"}'
+    - METRIC_REPORTING_INTERVAL=30
     #ports:
     #- 7077:7077
     #- 8181:8080
