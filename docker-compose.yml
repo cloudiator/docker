@@ -484,7 +484,7 @@ services:
     - JMS_IP=${HOST_IP}
     - JMS_PORT=61616
     - APP_NAME=PythonPi
-    - METRIC_PATTERN='{"metricValue":"$${metric.value}","timestamp":"$${metric.timestamp}","metricName":"$${metric.name}"}'
+    - METRIC_PATTERN={"metricValue":"$${metric.value}","timestamp":"$${metric.timestamp}","metricName":"$${metric.name}"}
     - METRIC_REPORTING_INTERVAL=30
     #ports:
     #- 7077:7077
