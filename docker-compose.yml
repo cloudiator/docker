@@ -110,6 +110,8 @@ services:
     - LOGSTASH_HOST=logstash:5000
     - INSTALLER_SPARK_MASTER_IP=${HOST_IP}
     - INSTALLER_SPARK_MASTER_PORT=7077
+    - INSTALLER_EMS_URL=
+    - INSTALLER_EMS_API_KEY=
 
   # Agent containing the matchmaking logic
   # Responsible for generating node candidates
