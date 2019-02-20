@@ -110,6 +110,8 @@ services:
     - LOGSTASH_HOST=logstash:5000
     - INSTALLER_SPARK_MASTER_IP=${HOST_IP}
     - INSTALLER_SPARK_MASTER_PORT=7077
+    - INSTALLER_EMS_URL=http://${HOST_IP}:8111/baguette/registerNode
+    - INSTALLER_EMS_API_KEY=
 
   # Agent containing the matchmaking logic
   # Responsible for generating node candidates
@@ -463,12 +465,14 @@ services:
     - /var/lib/docker/:/var/lib/docker:ro
 
   # (optional, only required if Spark jobs need to be executed)
+  # use DEPLOY_MODE=local for pySpark and DEPLOY_MODE=cluster for Java/Scala applications
   livy-server:
     image: cloudiator/livy-server:latest
     restart: always
     environment:
     - SPARK_MASTER_ENDPOINT=${HOST_IP}
     - SPARK_MASTER_PORT=7077
+    - DEPLOY_MODE=cluster
     volumes:
     - /tmp:/tmp
     #ports:
@@ -479,12 +483,13 @@ services:
     image: cloudiator/spark-master:latest
     restart: always
     environment:
+    - PUBLIC_IP=${HOST_IP}
     - SPARK_MASTER_UI_PORT=8181
     - SPARK_MASTER_PORT=7077
     - JMS_IP=${HOST_IP}
     - JMS_PORT=61616
     - APP_NAME=PythonPi
-    - METRIC_PATTERN='{"metricValue":"$${metric.value}","timestamp":"$${metric.timestamp}","metricName":"$${metric.name}"}'
+    - METRIC_PATTERN={"metricValue":"$${metric.value}","timestamp":"$${metric.timestamp}","metricName":"$${metric.name}"}
     - METRIC_REPORTING_INTERVAL=30
     #ports:
     #- 7077:7077
