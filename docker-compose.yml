@@ -122,6 +122,7 @@ services:
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     - LOGSTASH_HOST=logstash:5000
+    - MATCHMAKING_SOLVING_TIME=2
 
   # Storage for jobs
   # Uses mariadb
@@ -360,7 +361,7 @@ services:
     environment:
     - KAFKA_ADVERTISED_HOST_NAME=kafka
     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-    - KAFKA_MESSAGE_MAX_BYTES=41943040
+    - KAFKA_MESSAGE_MAX_BYTES=2147483646
 
   # Apache Zookeeper
   # used by Kafka
