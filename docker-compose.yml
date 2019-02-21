@@ -112,6 +112,11 @@ services:
     - INSTALLER_SPARK_MASTER_PORT=7077
     - INSTALLER_EMS_URL=http://${HOST_IP}:8111/baguette/registerNode
     - INSTALLER_EMS_API_KEY=
+    - SPARK_JMS_IP=${HOST_IP}
+    - SPARK_JMS_PORT=${JMS_PORT}
+    - SPARK_APP_NAME=${APP_NAME}
+    - SPARK_METRIC_PATTERN=${METRIC_PATTERN}
+    - SPARK_METRIC_REPORTING_INTERVAL=${METRIC_REPORTING_INTERVAL}
 
   # Agent containing the matchmaking logic
   # Responsible for generating node candidates
@@ -487,10 +492,10 @@ services:
     - SPARK_MASTER_UI_PORT=8181
     - SPARK_MASTER_PORT=7077
     - JMS_IP=${HOST_IP}
-    - JMS_PORT=61616
-    - APP_NAME=PythonPi
-    - METRIC_PATTERN={"metricValue":"$${metric.value}","timestamp":"$${metric.timestamp}","metricName":"$${metric.name}"}
-    - METRIC_REPORTING_INTERVAL=30
+    - JMS_PORT=${JMS_PORT}
+    - APP_NAME=${APP_NAME}
+    - METRIC_PATTERN=${METRIC_PATTERN}
+    - METRIC_REPORTING_INTERVAL=${METRIC_REPORTING_INTERVAL}
     #ports:
     #- 7077:7077
     #- 8181:8080
