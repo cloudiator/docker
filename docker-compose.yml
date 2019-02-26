@@ -470,7 +470,7 @@ services:
     - /var/lib/docker/:/var/lib/docker:ro
 
   # (optional, only required if Spark jobs need to be executed)
-  # use DEPLOY_MODE=local for pySpark and DEPLOY_MODE=cluster for Java/Scala applications
+  # use DEPLOY_MODE=client for pySpark and DEPLOY_MODE=cluster for Java/Scala applications
   livy-server:
     image: cloudiator/livy-server:latest
     restart: always
