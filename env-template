@@ -4,6 +4,7 @@ AUTH_MODE=SINGLE
 AUTH_TOKEN=secure
 HOST_IP=
 INFLUX_PASSWORD=cloudiator
+IMAGE_PREFIX=
 
 # Apache Spark monitoring
 JMS_IP=
