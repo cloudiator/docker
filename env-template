@@ -4,10 +4,11 @@ AUTH_MODE=SINGLE
 AUTH_TOKEN=secure
 HOST_IP=
 INFLUX_PASSWORD=cloudiator
+IMAGE_PREFIX=
 
 # Apache Spark monitoring
 JMS_IP=
 JMS_PORT=61616
 APP_NAME=PythonPi
-METRIC_PATTERN={"metricValue":"$${metric.value}","timestamp":"$${metric.timestamp}","metricName":"$${metric.name}"}
+METRIC_PATTERN={"metricValue":"${metric.value}","timestamp":"${metric.timestamp}","metricName":"${metric.name}"}
 METRIC_REPORTING_INTERVAL=30

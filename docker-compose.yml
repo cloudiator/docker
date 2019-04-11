@@ -34,7 +34,7 @@ services:
     - "kafka"
     - "discovery-agent"
     - "user-agent"
-    image: cloudiator/vm-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/vm-agent:latest
     restart: always
     environment:
     - JPA_USER=${DATABASE_USER}
@@ -64,7 +64,7 @@ services:
     depends_on:
     - "node-store"
     - "kafka"
-    image: cloudiator/node-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/node-agent:latest
     restart: always
     environment:
     - JPA_USER=${DATABASE_USER}
@@ -91,7 +91,7 @@ services:
     - "discovery-store"
     - "user-agent"
     - "kafka"
-    image: cloudiator/discovery-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/discovery-agent:latest
     restart: always
     environment:
     - JPA_USER=${DATABASE_USER}
@@ -104,7 +104,7 @@ services:
   install-agent:
     depends_on:
     - "kafka"
-    image: cloudiator/install-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/install-agent:latest
     restart: always
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
@@ -125,7 +125,7 @@ services:
   matchmaking-agent:
     depends_on:
     - "kafka"
-    image: cloudiator/matchmaking-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/matchmaking-agent:latest
     restart: always
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
@@ -148,7 +148,7 @@ services:
     depends_on:
     - "job-store"
     - "kafka"
-    image: cloudiator/job-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/job-agent:latest
     restart: always
     environment:
     - JPA_USER=${DATABASE_USER}
@@ -174,7 +174,7 @@ services:
     depends_on:
     - "kafka"
     - "schedule-store"
-    image: cloudiator/scheduler-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/scheduler-agent:latest
     restart: always
     environment:
     - JPA_USER=${DATABASE_USER}
@@ -186,7 +186,7 @@ services:
   lance-agent:
     depends_on:
     - "kafka"
-    image: cloudiator/lance-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/lance-agent:latest
     restart: always
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
@@ -208,7 +208,7 @@ services:
     depends_on:
     - "kafka"
     - "faas-store"
-    image: cloudiator/faas-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/faas-agent:latest
     restart: always
     environment:
     - JPA_USER=${DATABASE_USER}
@@ -220,7 +220,7 @@ services:
   spark-agent:
     depends_on:
     - "kafka"
-    image: cloudiator/spark-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/spark-agent:latest
     restart: always
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
@@ -243,7 +243,7 @@ services:
     depends_on:
     - "user-store"
     - "kafka"
-    image: cloudiator/user-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/user-agent:latest
     restart: always
     environment:
     - JPA_USER=${DATABASE_USER}
@@ -259,7 +259,7 @@ services:
   rest-server:
     depends_on:
     - "kafka"
-    image: cloudiator/rest-server:latest
+    image: ${IMAGE_PREFIX}cloudiator/rest-server:latest
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     - LOGSTASH_HOST=logstash:5000
@@ -278,7 +278,7 @@ services:
       - MYSQL_PASSWORD=${DATABASE_PASSWORD}
 
   monitoring-agent:
-    image: cloudiator/monitoring-agent
+    image: ${IMAGE_PREFIX}cloudiator/monitoring-agent
     restart: always
     environment:
       - JPA_USER=${DATABASE_USER}
@@ -291,7 +291,7 @@ services:
   encryption-agent:
     depends_on:
     - "kafka"
-    image: cloudiator/encryption-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/encryption-agent:latest
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     volumes:
@@ -314,7 +314,7 @@ services:
     - kafka
     - encryption-agent
     - secure-store
-    image: cloudiator/securestore-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/securestore-agent:latest
     environment:
     - JPA_USER=${DATABASE_USER}
     - JPA_PASSWORD=${DATABASE_PASSWORD}
@@ -326,7 +326,7 @@ services:
   yaml-agent:
     depends_on:
     - kafka
-    image: cloudiator/yaml-agent:latest
+    image: ${IMAGE_PREFIX}cloudiator/yaml-agent:latest
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
@@ -471,9 +471,9 @@ services:
     - /var/lib/docker/:/var/lib/docker:ro
 
   # (optional, only required if Spark jobs need to be executed)
-  # use DEPLOY_MODE=local for pySpark and DEPLOY_MODE=cluster for Java/Scala applications
+  # use DEPLOY_MODE=client for pySpark and DEPLOY_MODE=cluster for Java/Scala applications
   livy-server:
-    image: cloudiator/livy-server:latest
+    image: ${IMAGE_PREFIX}cloudiator/livy-server:latest
     restart: always
     environment:
     - SPARK_MASTER_ENDPOINT=${HOST_IP}
@@ -486,7 +486,7 @@ services:
     network_mode: host
   # (optional, only required if Spark jobs need to be executed)
   spark-master:
-    image: cloudiator/spark-master:latest
+    image: ${IMAGE_PREFIX}cloudiator/spark-master:latest
     restart: always
     environment:
     - PUBLIC_IP=${HOST_IP}
