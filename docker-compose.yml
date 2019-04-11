@@ -46,6 +46,7 @@ services:
     - STATISTICS_INFLUX_URL=http://influx:8086
     - STATISTICS_INFLUX_USER=cloudiator
     - STATISTICS_INFLUX_PASSWORD=${INFLUX_PASSWORD}
+    - VM_ENABLE_CLEANUP=false
 
   # Storage for nodes
   # Uses mariadb
