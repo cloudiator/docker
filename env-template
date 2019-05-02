@@ -13,7 +13,10 @@ APP_NAME=PythonPi
 METRIC_PATTERN={"metricValue":"${metric.value}","timestamp":"${metric.timestamp}","metricName":"${metric.name}"}
 METRIC_REPORTING_INTERVAL=30
 
-# Install-Agent Doownload Sources
+# Enable installation of Melodic-specific tools on nodes
+DEPLOYMENT_INSTALL_MELODIC_TOOLS=true  
+
+# Install-Agent Download Sources
 INSTALLER_JAVA_DOWNLOAD=http://javadl.sun.com/webapps/download/AutoDL?BundleId=106240
 INSTALLER_VISOR_DOWNLOAD=https://bintray.com/cloudiator/cloudiator/download_file?file_path=visor-service-0.3.0-SNAPSHOT.jar
 INSTALLER_LANCE_DOWNLOAD=https://bintray.com/cloudiator/cloudiator/download_file?file_path=server-0.3.0-SNAPSHOT.jar
