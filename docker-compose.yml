@@ -198,6 +198,7 @@ services:
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     - JAVA_TOOL_OPTIONS=-Dlca.client.config.registry=etcdregistry -Dlca.client.config.registry.etcd.hosts=${HOST_IP}
+    - DEPLOYMENT_INSTALL_MELODIC_TOOLS=${DEPLOYMENT_INSTALL_MELODIC_TOOLS}
 
   # Storage for functions
   # Uses mariadb
@@ -232,6 +233,7 @@ services:
     environment:
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     - LIVY_SERVER=${HOST_IP}:8998
+    - DEPLOYMENT_INSTALL_MELODIC_TOOLS=${DEPLOYMENT_INSTALL_MELODIC_TOOLS}
 
   # Storage for users of the system
   # Uses mariadb
