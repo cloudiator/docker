@@ -72,6 +72,20 @@ services:
     - JPA_URL=jdbc:mysql://node-store:3306/node
     - LOGSTASH_HOST=logstash:5000
 
+  # Agent handling byon requests
+  byon-agent:
+    depends_on:
+    - "node-store"
+    - "kafka"
+    image: cloudiator/byon-agent:latest
+    restart: always
+    environment:
+    - JPA_USER=${DATABASE_USER}
+    - JPA_PASSWORD=${DATABASE_PASSWORD}
+    - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    - JPA_URL=jdbc:mysql://node-store:3306/node
+    - LOGSTASH_HOST=logstash:5000
+
   # Storage for discovery
   # Uses mariadb
   discovery-store:
