@@ -95,7 +95,7 @@ services:
     - JPA_USER=${DATABASE_USER}
     - JPA_PASSWORD=${DATABASE_PASSWORD}
     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-    - JPA_URL=jdbc:mysql://byon-store:3306/node
+    - JPA_URL=jdbc:mysql://byon-store:3306/byon
     - LOGSTASH_HOST=logstash:5000
 
   # Storage for discovery
