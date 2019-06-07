@@ -302,6 +302,7 @@ services:
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
       - JPA_URL=jdbc:mysql://monitoring-store:3306/user
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - DEPLOYMENT_INSTALL_MELODIC_TOOLS
 
   # Utility service
   # Responsible for encrypting data
