@@ -43,7 +43,7 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - LOGSTASH_HOST=logstash:5000
       - STATISTICS_ENABLED=true
-      - STATISTICS_INFLUX_URL=http://influx:8086
+      - STATISTICS_INFLUX_URL=${INFLUX_URL:-http://influx:8086}
       - STATISTICS_INFLUX_USER=cloudiator
       - STATISTICS_INFLUX_PASSWORD=${INFLUX_PASSWORD:?err}
       - VM_ENABLE_CLEANUP
