@@ -397,32 +397,32 @@ services:
 
   # Influx DB (optional)
   # used to collect statistics
-  influx:
-    image: influxdb:latest
-    ports:
-      - "8086:8086"
-    environment:
-      - INFLUXDB_DB=cloudiator
-      - INFLUXDB_ADMIN_USER=admin
-      - INFLUXDB_ADMIN_PASSWORD=${INFLUX_PASSWORD:?err}
-      - INFLUXDB_USER=cloudiator
-      - INFLUXDB_USER_PASSWORD=${INFLUX_PASSWORD:?err}
-    volumes:
-      - /var/lib/influxdb
+  # influx:
+  #  image: influxdb:latest
+  #  ports:
+  #    - "8086:8086"
+  #  environment:
+  #    - INFLUXDB_DB=cloudiator
+  #    - INFLUXDB_ADMIN_USER=admin
+  #    - INFLUXDB_ADMIN_PASSWORD=${INFLUX_PASSWORD:?err}
+  #    - INFLUXDB_USER=cloudiator
+  #    - INFLUXDB_USER_PASSWORD=${INFLUX_PASSWORD:?err}
+  #  volumes:
+  #    - /var/lib/influxdb
 
   # Chronograf (optional)
-  chronograf:
-    image: chronograf:latest
-    depends_on:
-      - "influx"
-    volumes:
-      - /var/lib/chronograf
-    ports:
-      - "8888:8888"
-    environment:
-      - INFLUXDB_URL=http://${HOST_IP:?err}:8086
-      - INFLUXDB_USERNAME=cloudiator
-      - INFLUXDB_PASSWORD=${INFLUX_PASSWORD:?err}
+  # chronograf:
+  #  image: chronograf:latest
+  #  depends_on:
+  #    - "influx"
+  #  volumes:
+  #    - /var/lib/chronograf
+  #  ports:
+  #    - "8888:8888"
+  #  environment:
+  #    - INFLUXDB_URL=http://${HOST_IP:?err}:8086
+  #    - INFLUXDB_USERNAME=cloudiator
+  #    - INFLUXDB_PASSWORD=${INFLUX_PASSWORD:?err}
 
   # (optional)
   # can be used for debugging kafka broker
