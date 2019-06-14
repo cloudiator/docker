@@ -2,6 +2,18 @@ version: '2.1'
 
 services:
 
+  # Uses mariadb
+  store:
+    image: mariadb:latest
+    restart: always
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASES=vm node discovery job schedule faas user secure
+      - MYSQL_USER=${DATABASE_USER:?err}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
+    volumes:
+      - ./store-scripts:/docker-entrypoint-initdb.d
+
   # User Interface
   # nginx server with user interface
   interface:
@@ -16,17 +28,6 @@ services:
       - AUTH_TOKEN=${AUTH_TOKEN:?err}
     command: sh -c "envsubst \"`env | awk -F = '{printf \" $$%s\", $$1}'`\" < /usr/share/nginx/html/appConfig.template > /usr/share/nginx/html/assets/appConfig.json && exec nginx -g 'daemon off;'"
 
-  # Storage for the virtual machines
-  # Uses mariadb
-  vm-store:
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=vm
-      - MYSQL_USER=${DATABASE_USER:?err}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
-
   # Agent responsible for starting virtual machines
   vm-agent:
     depends_on:
@@ -39,7 +40,7 @@ services:
     environment:
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
-      - JPA_URL=jdbc:mysql://vm-store:3306/vm
+      - JPA_URL=jdbc:mysql://store:3306/vm
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - LOGSTASH_HOST=logstash:5000
       - STATISTICS_ENABLED=true
@@ -47,17 +48,6 @@ services:
       - STATISTICS_INFLUX_USER=cloudiator
       - STATISTICS_INFLUX_PASSWORD=${INFLUX_PASSWORD:?err}
       - VM_ENABLE_CLEANUP
-
-  # Storage for nodes
-  # Uses mariadb
-  node-store:
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=node
-      - MYSQL_USER=${DATABASE_USER:?err}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
 
   # Agent responsible for starting nodes
   node-agent:
@@ -70,19 +60,8 @@ services:
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JPA_URL=jdbc:mysql://node-store:3306/node
+      - JPA_URL=jdbc:mysql://store:3306/node
       - LOGSTASH_HOST=logstash:5000
-
-  # Storage for discovery
-  # Uses mariadb
-  discovery-store:
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=discovery
-      - MYSQL_USER=${DATABASE_USER:?err}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
 
   # Agent responsible for the discovery
   # of cloud offers
@@ -96,7 +75,7 @@ services:
     environment:
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
-      - JPA_URL=jdbc:mysql://discovery-store:3306/discovery
+      - JPA_URL=jdbc:mysql://store:3306/discovery
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
   # Agent responsible for installing
@@ -147,17 +126,6 @@ services:
       - LOGSTASH_HOST=logstash:5000
       - MATCHMAKING_SOLVING_TIME=2
 
-  # Storage for jobs
-  # Uses mariadb
-  job-store:
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=job
-      - MYSQL_USER=${DATABASE_USER:?err}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
-
   # Agent responsible for jobs
   job-agent:
     depends_on:
@@ -168,19 +136,8 @@ services:
     environment:
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
-      - JPA_URL=jdbc:mysql://job-store:3306/job
+      - JPA_URL=jdbc:mysql://store:3306/job
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-
-  # Storage for schedules
-  # Uses mariadb
-  schedule-store:
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=schedule
-      - MYSQL_USER=${DATABASE_USER:?err}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
 
   # Agent responsible for scheduling
   # Receives task to be scheduled and
@@ -194,7 +151,7 @@ services:
     environment:
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
-      - JPA_URL=jdbc:mysql://schedule-store:3306/schedule
+      - JPA_URL=jdbc:mysql://store:3306/schedule
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
   # Agent handling lance processes
@@ -208,17 +165,6 @@ services:
       - JAVA_TOOL_OPTIONS=-Dlca.client.config.registry=etcdregistry -Dlca.client.config.registry.etcd.hosts=${HOST_IP:?err}
       - DEPLOYMENT_INSTALL_MELODIC_TOOLS
 
-  # Storage for functions
-  # Uses mariadb
-  faas-store:
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=faas
-      - MYSQL_USER=${DATABASE_USER:?err}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
-
   # Agent handling faas processes
   faas-agent:
     depends_on:
@@ -229,7 +175,7 @@ services:
     environment:
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
-      - JPA_URL=jdbc:mysql://faas-store:3306/faas
+      - JPA_URL=jdbc:mysql://store:3306/faas
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
   # Agent handling Spark processes
@@ -243,17 +189,6 @@ services:
       - LIVY_SERVER=${HOST_IP:?err}:8998
       - DEPLOYMENT_INSTALL_MELODIC_TOOLS
 
-  # Storage for users of the system
-  # Uses mariadb
-  user-store:
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=user
-      - MYSQL_USER=${DATABASE_USER:?err}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
-
   # Agent responsible for user management
   # authentication and authorisation
   user-agent:
@@ -265,7 +200,7 @@ services:
     environment:
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
-      - JPA_URL=jdbc:mysql://user-store:3306/user
+      - JPA_URL=jdbc:mysql://store:3306/user
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - AUTH_MODE=${AUTH_MODE:?err}
       - AUTH_TOKEN=${AUTH_TOKEN}
@@ -316,16 +251,6 @@ services:
       - /opt/data/password
       - /opt/data/salt
 
-  # Database used by the securestore-agent
-  secure-store:
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=secureStore
-      - MYSQL_USER=${DATABASE_USER:?err}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
-
   # Responsible for storing secured variables
   securestore-agent:
     depends_on:
@@ -336,7 +261,7 @@ services:
     environment:
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
-      - JPA_URL=jdbc:mysql://secure-store:3306/secureStore
+      - JPA_URL=jdbc:mysql://store:3306/secure
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
   # Responsible for parsing a job description given
