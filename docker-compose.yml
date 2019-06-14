@@ -8,7 +8,7 @@ services:
     restart: always
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASES=vm node discovery job schedule faas user secure
+      - MYSQL_DATABASES=vm node discovery job schedule faas user secure monitoring
       - MYSQL_USER=${DATABASE_USER:?err}
       - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
     volumes:
@@ -31,7 +31,7 @@ services:
   # Agent responsible for starting virtual machines
   vm-agent:
     depends_on:
-      - "vm-store"
+      - "store"
       - "kafka"
       - "discovery-agent"
       - "user-agent"
@@ -52,7 +52,7 @@ services:
   # Agent responsible for starting nodes
   node-agent:
     depends_on:
-      - "node-store"
+      - "store"
       - "kafka"
     image: ${IMAGE_PREFIX}cloudiator/node-agent:latest
     restart: always
@@ -67,7 +67,7 @@ services:
   # of cloud offers
   discovery-agent:
     depends_on:
-      - "discovery-store"
+      - "store"
       - "user-agent"
       - "kafka"
     image: ${IMAGE_PREFIX}cloudiator/discovery-agent:latest
@@ -129,7 +129,7 @@ services:
   # Agent responsible for jobs
   job-agent:
     depends_on:
-      - "job-store"
+      - "store"
       - "kafka"
     image: ${IMAGE_PREFIX}cloudiator/job-agent:latest
     restart: always
@@ -145,7 +145,7 @@ services:
   scheduler-agent:
     depends_on:
       - "kafka"
-      - "schedule-store"
+      - "store"
     image: ${IMAGE_PREFIX}cloudiator/scheduler-agent:latest
     restart: always
     environment:
@@ -169,7 +169,7 @@ services:
   faas-agent:
     depends_on:
       - "kafka"
-      - "faas-store"
+      - "store"
     image: ${IMAGE_PREFIX}cloudiator/faas-agent:latest
     restart: always
     environment:
@@ -193,7 +193,7 @@ services:
   # authentication and authorisation
   user-agent:
     depends_on:
-      - "user-store"
+      - "store"
       - "kafka"
     image: ${IMAGE_PREFIX}cloudiator/user-agent:latest
     restart: always
@@ -218,24 +218,14 @@ services:
     ports:
       - 9000:9000
 
-  # Storage for monitoring management
-  # Uses mariadb
-  monitoring-store:
-    image: mariadb:latest
-    restart: always
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=user
-      - MYSQL_USER=${DATABASE_USER:?err}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
-
+  # Agent responsible for monitoring orchestration
   monitoring-agent:
     image: ${IMAGE_PREFIX}cloudiator/monitoring-agent
     restart: always
     environment:
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
-      - JPA_URL=jdbc:mysql://monitoring-store:3306/user
+      - JPA_URL=jdbc:mysql://store:3306/monitoring
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - DEPLOYMENT_INSTALL_MELODIC_TOOLS
 
@@ -256,7 +246,7 @@ services:
     depends_on:
       - kafka
       - encryption-agent
-      - secure-store
+      - store
     image: ${IMAGE_PREFIX}cloudiator/securestore-agent:latest
     environment:
       - JPA_USER=${DATABASE_USER:?err}
