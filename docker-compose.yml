@@ -112,6 +112,8 @@ services:
       - APP_NAME
       - METRIC_PATTERN
       - METRIC_REPORTING_INTERVAL
+    volumes:
+      - /home/ubuntu/conf/common:/home
 
   # Agent containing the matchmaking logic
   # Responsible for generating node candidates
