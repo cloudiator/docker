@@ -30,5 +30,15 @@ HOST_IP=
 # INSTALLER_ALLUXIO_DOWNLOAD=http://downloads.alluxio.org/downloads/files/1.8.1/alluxio-1.8.1-bin.tar.gz
 # INSTALLER_DLMSAGENT_DOWNLOAD=https://nexus.7bulls.eu:8443/repository/maven-snapshots/eu/melodic/dlms/DLMSAgent/0.0.1-SNAPSHOT/DLMSAgent-0.0.1-20181025.135831-1.jar
 
+# Install-Agent's EMS related settings
+EMS_URL=https://ems:8111/baguette/registerNode
+EMS_API_KEY=
+EMS_KEYSTORE_FILE=/home/melodic-truststore.p12
+EMS_KEYSTORE_TYPE=PKCS12
+EMS_KEYSTORE_PASSWORD=melodic
+EMS_TRUSTSTORE_FILE=/home/melodic-truststore.p12
+EMS_TRUSTSTORE_TYPE=PKCS12
+EMS_TRUSTSTORE_PASSWORD=melodic
+
 # Auto delete virtual machines
 # VM_ENABLE_CLEANUP = true
