@@ -8,7 +8,7 @@ services:
     restart: always
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASES=vm node discovery job schedule faas user secure monitoring
+      - MYSQL_DATABASES=vm node discovery job schedule faas user secure monitoring byon
       - MYSQL_USER=${DATABASE_USER:?err}
       - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
     volumes:
@@ -435,6 +435,20 @@ services:
     #- 7077:7077
     #- 8181:8080
     network_mode: host
+
+  # Agent handling byon requests
+  byon-agent:
+    depends_on:
+      - "store"
+      - "kafka"
+    image: ${IMAGE_PREFIX}cloudiator/byon-agent:latest
+    restart: always
+    environment:
+      - JPA_USER=${DATABASE_USER:?err}
+      - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - JPA_URL=jdbc:mysql://store:3306/byon
+      - LOGSTASH_HOST=logstash:5000
 
   # (optional)
   # Managing of running docker containers
