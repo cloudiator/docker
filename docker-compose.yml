@@ -13,6 +13,7 @@ services:
       - MYSQL_PASSWORD=${DATABASE_PASSWORD:?err}
     volumes:
       - ./store-scripts:/docker-entrypoint-initdb.d
+      - ./store/secure:/var/lib/mysql/secure
 
   # User Interface
   # nginx server with user interface
@@ -239,8 +240,8 @@ services:
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     volumes:
-      - /opt/data/password
-      - /opt/data/salt
+      - ./encryption-agent/password:/opt/data/password
+      - ./encryption-agent/salt:/opt/data/salt
 
   # Responsible for storing secured variables
   securestore-agent:
