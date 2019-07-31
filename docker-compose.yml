@@ -312,7 +312,7 @@ services:
   zookeeper:
     image: wurstmeister/zookeeper
     restart: always
-  ports:
+    ports:
       - "2181:2181"  
 
   # Influx DB (optional)
