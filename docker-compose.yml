@@ -16,17 +16,17 @@ services:
 
   # User Interface
   # nginx server with user interface
-  interface:
-    image: cloudiator/user-interface:latest
-    volumes:
-      - ./interface/appConfig.template:/usr/share/nginx/html/appConfig.template
-    ports:
-      - "8080:80"
-    environment:
-      - API_URL=http://${HOST_IP:?err}:9000
-      - AUTH_MODE=${AUTH_MODE:?err}
-      - AUTH_TOKEN=${AUTH_TOKEN:?err}
-    command: sh -c "envsubst \"`env | awk -F = '{printf \" $$%s\", $$1}'`\" < /usr/share/nginx/html/appConfig.template > /usr/share/nginx/html/assets/appConfig.json && exec nginx -g 'daemon off;'"
+  # interface:
+  #   image: cloudiator/user-interface:latest
+  #   volumes:
+  #     - ./interface/appConfig.template:/usr/share/nginx/html/appConfig.template
+  #   ports:
+  #     - "8080:80"
+  #   environment:
+  #     - API_URL=http://${HOST_IP:?err}:9000
+  #     - AUTH_MODE=${AUTH_MODE:?err}
+  #     - AUTH_TOKEN=${AUTH_TOKEN:?err}
+  #   command: sh -c "envsubst \"`env | awk -F = '{printf \" $$%s\", $$1}'`\" < /usr/share/nginx/html/appConfig.template > /usr/share/nginx/html/assets/appConfig.json && exec nginx -g 'daemon off;'"
 
   # Agent responsible for starting virtual machines
   vm-agent:
@@ -167,17 +167,17 @@ services:
       - DEPLOYMENT_INSTALL_MELODIC_TOOLS
 
   # Agent handling faas processes
-  faas-agent:
-    depends_on:
-      - "kafka"
-      - "store"
-    image: ${IMAGE_PREFIX}cloudiator/faas-agent:latest
-    restart: always
-    environment:
-      - JPA_USER=${DATABASE_USER:?err}
-      - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
-      - JPA_URL=jdbc:mysql://store:3306/faas
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  # faas-agent:
+  #   depends_on:
+  #     - "kafka"
+  #     - "store"
+  #   image: ${IMAGE_PREFIX}cloudiator/faas-agent:latest
+  #   restart: always
+  #   environment:
+  #     - JPA_USER=${DATABASE_USER:?err}
+  #     - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
+  #     - JPA_URL=jdbc:mysql://store:3306/faas
+  #     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
   # Agent handling Spark processes
   spark-agent:
@@ -257,12 +257,12 @@ services:
 
   # Responsible for parsing a job description given
   # as YAML format (optional)
-  yaml-agent:
-    depends_on:
-      - kafka
-    image: ${IMAGE_PREFIX}cloudiator/yaml-agent:latest
-    environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  # yaml-agent:
+  #   depends_on:
+  #     - kafka
+  #   image: ${IMAGE_PREFIX}cloudiator/yaml-agent:latest
+  #   environment:
+  #     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
 
   # ETCD directory required by lance
@@ -282,15 +282,15 @@ services:
 
   # (optional)
   # Can be used for debugging the etcd directory.
-  etcd-browser:
-    build: ./etcd-browser
-    ports:
-      - 8000:8000
-    environment:
-      - ETCD_HOST=etcd
-      - ETCD_PORT=2379
-    depends_on:
-      - "etcd"
+  # etcd-browser:
+  #   build: ./etcd-browser
+  #   ports:
+  #     - 8000:8000
+  #   environment:
+  #     - ETCD_HOST=etcd
+  #     - ETCD_PORT=2379
+  #   depends_on:
+  #     - "etcd"
 
   # Apache Kafka Broker
   # Main communication hub
@@ -301,15 +301,19 @@ services:
     hostname: kafka
     restart: always
     environment:
-      - KAFKA_ADVERTISED_HOST_NAME=kafka
+      - KAFKA_ADVERTISED_HOST_NAME=${HOST_IP}
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_MESSAGE_MAX_BYTES=2147483646
+    ports:
+      - "9092:9092"  
 
   # Apache Zookeeper
   # used by Kafka
   zookeeper:
     image: wurstmeister/zookeeper
     restart: always
+  ports:
+      - "2181:2181"  
 
   # Influx DB (optional)
   # used to collect statistics
@@ -342,67 +346,67 @@ services:
 
   # (optional)
   # can be used for debugging kafka broker
-  kafka-manager:
-    depends_on:
-      - "kafka"
-      - "zookeeper"
-    image: sheepkiller/kafka-manager:latest
-    environment:
-      - ZK_HOSTS=zookeeper:2181
-      - APPLICATION_SECRET=verySecureSecret
-      - KM_VERSION=1.3.3.17
-    ports:
-      - 8082:9000
-    volumes:
-      - ./kafka-manager:/kafka-manager-1.3.1.8/conf
+  # kafka-manager:
+  #   depends_on:
+  #     - "kafka"
+  #     - "zookeeper"
+  #   image: sheepkiller/kafka-manager:latest
+  #   environment:
+  #     - ZK_HOSTS=zookeeper:2181
+  #     - APPLICATION_SECRET=verySecureSecret
+  #     - KM_VERSION=1.3.3.17
+  #   ports:
+  #     - 8082:9000
+  #   volumes:
+  #     - ./kafka-manager:/kafka-manager-1.3.1.8/conf
 
   # (optional)
   # ELK Stack is used for logging
-  elasticsearch:
-    build:
-      context: elasticsearch/
-    volumes:
-      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-    environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+  # elasticsearch:
+  #   build:
+  #     context: elasticsearch/
+  #   volumes:
+  #     - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  #   environment:
+  #     ES_JAVA_OPTS: "-Xmx256m -Xms256m"
 
   # (optional)
   # ELK Stack is used for logging
-  logstash:
-    build:
-      context: logstash/
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    depends_on:
-      - elasticsearch
+  # logstash:
+  #   build:
+  #     context: logstash/
+  #   volumes:
+  #     - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+  #     - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+  #   environment:
+  #     LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+  #   depends_on:
+  #     - elasticsearch
 
   # (optional)
   # ELK Stack is used for logging
-  kibana:
-    build:
-      context: kibana/
-    volumes:
-      - ./kibana/config/:/usr/share/kibana/config:ro
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
+  # kibana:
+  #   build:
+  #     context: kibana/
+  #   volumes:
+  #     - ./kibana/config/:/usr/share/kibana/config:ro
+  #   ports:
+  #     - "5601:5601"
+  #   depends_on:
+  #     - elasticsearch
 
   # (optional)
   # Monitoring of docker containers
-  cadvisor:
-    image: google/cadvisor:latest
-    restart: always
-    ports:
-      - "8081:8080"
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
+  # cadvisor:
+  #   image: google/cadvisor:latest
+  #   restart: always
+  #   ports:
+  #     - "8081:8080"
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:rw
+  #     - /sys:/sys:ro
+  #     - /var/lib/docker/:/var/lib/docker:ro
 
   # (optional, only required if Spark jobs need to be executed)
   # use DEPLOY_MODE=client for pySpark and DEPLOY_MODE=cluster for Java/Scala applications
