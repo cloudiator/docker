@@ -43,10 +43,10 @@ services:
       - JPA_URL=jdbc:mysql://store:3306/vm
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - LOGSTASH_HOST=logstash:5000
-      - STATISTICS_ENABLED=true
-      - STATISTICS_INFLUX_URL=${INFLUX_URL:?err}
+      - STATISTICS_ENABLED=false
+      - STATISTICS_INFLUX_URL=localhost
       - STATISTICS_INFLUX_USER=cloudiator
-      - STATISTICS_INFLUX_PASSWORD=${INFLUX_PASSWORD:?err}
+      - STATISTICS_INFLUX_PASSWORD=dummysecret
       - VM_ENABLE_CLEANUP
 
   # Agent responsible for starting nodes
