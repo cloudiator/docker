@@ -111,6 +111,7 @@ services:
       - APP_NAME
       - METRIC_PATTERN
       - METRIC_REPORTING_INTERVAL
+      - LANCE_FAIL_FAST
     volumes:
       - ./install-agent:/home
 
@@ -165,7 +166,6 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - JAVA_TOOL_OPTIONS=-Dlca.client.config.registry=etcdregistry -Dlca.client.config.registry.etcd.hosts=${HOST_IP:?err}
       - DEPLOYMENT_INSTALL_MELODIC_TOOLS
-      - DEPLOYMENT_FAIL_FAST
 
   # Agent handling faas processes
   faas-agent:
