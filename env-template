@@ -10,21 +10,6 @@ HOST_IP=
 # IMAGE_PREFIX=
 
 # Apache Spark monitoring
-<<<<<<< HEAD
-JMS_IP=
-JMS_PORT=61616
-APP_NAME=PythonPi
-METRIC_PATTERN={"metricValue":"${metric.value}","timestamp":"${metric.timestamp}","metricName":"${metric.name}"}
-METRIC_REPORTING_INTERVAL=30
-
-# Install-Agent Doownload Sources
-INSTALLER_JAVA_DOWNLOAD=http://javadl.sun.com/webapps/download/AutoDL?BundleId=106240
-INSTALLER_VISOR_DOWNLOAD=https://bintray.com/cloudiator/cloudiator/download_file?file_path=visor-service-0.3.0-SNAPSHOT.jar
-INSTALLER_LANCE_DOWNLOAD=https://bintray.com/cloudiator/cloudiator/download_file?file_path=server-0.3.0-SNAPSHOT.jar
-INSTALLER_DOCKER_BINARY_DOWNLOAD=https://raw.githubusercontent.com/cloudiator/lance/melodic-stable/install/docker_retry.sh
-INSTALLER_ALLUXIO_DOWNLOAD=http://downloads.alluxio.org/downloads/files/1.8.1/alluxio-1.8.1-bin.tar.gz
-INSTALLER_DLMSAGENT_DOWNLOAD=https://nexus.7bulls.eu:8443/repository/maven-snapshots/eu/melodic/dlms/DLMSAgent/0.0.1-SNAPSHOT/DLMSAgent-0.0.1-20181025.135831-1.jar
-=======
 # JMS_IP=
 # JMS_PORT=61616
 # APP_NAME=PythonPi
@@ -46,4 +31,3 @@ INSTALLER_DLMSAGENT_DOWNLOAD=https://nexus.7bulls.eu:8443/repository/maven-snaps
 
 # Auto delete virtual machines
 # VM_ENABLE_CLEANUP = true
->>>>>>> a860394b77d69952619ed924203311b9e9c7aeed
