@@ -174,6 +174,7 @@ services:
     image: ${IMAGE_PREFIX}cloudiator/faas-agent:latest
     restart: always
     environment:
+      - JAVA_TOOL_OPTIONS=-Dlca.client.config.registry=etcdregistry -Dlca.client.config.registry.etcd.hosts=${HOST_IP:?err}
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
       - JPA_URL=jdbc:mysql://store:3306/faas
