@@ -112,6 +112,7 @@ services:
       - APP_NAME
       - METRIC_PATTERN
       - METRIC_REPORTING_INTERVAL
+      - INSTALLER_ALLUXIO_MASTER_HOST=${HOST_IP:?err}
     volumes:
       - ./install-agent:/home
 
