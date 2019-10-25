@@ -154,6 +154,10 @@ services:
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
       - JPA_URL=jdbc:mysql://store:3306/schedule
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - STATISTICS_ENABLED=true
+      - STATISTICS_INFLUX_URL=${INFLUX_URL:?err}
+      - STATISTICS_INFLUX_USER=cloudiator
+      - STATISTICS_INFLUX_PASSWORD=${INFLUX_PASSWORD:?err}
 
   # Agent handling lance processes
   lance-agent:
