@@ -108,9 +108,11 @@ services:
       - INSTALLER_EMS_TRUSTSTORE_PASSWORD
       - JMS_IP
       - JMS_PORT
+      - DLMS_WEBSERVICE_PORT
       - APP_NAME
       - METRIC_PATTERN
       - METRIC_REPORTING_INTERVAL
+      - INSTALLER_ALLUXIO_MASTER_HOST=${HOST_IP:?err}
     volumes:
       - ./install-agent:/home
 
@@ -240,6 +242,7 @@ services:
     depends_on:
       - "kafka"
     image: ${IMAGE_PREFIX}cloudiator/encryption-agent:latest
+    restart: always
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     volumes:
@@ -253,6 +256,7 @@ services:
       - encryption-agent
       - store
     image: ${IMAGE_PREFIX}cloudiator/securestore-agent:latest
+    restart: always
     environment:
       - JPA_USER=${DATABASE_USER:?err}
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
