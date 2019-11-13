@@ -26,7 +26,7 @@ services:
       - API_URL=http://${HOST_IP:?err}:9000
       - AUTH_MODE=${AUTH_MODE:?err}
       - AUTH_TOKEN=${AUTH_TOKEN:?err}
-      - SSH_TUNNEL_URL=ws://${HOST_IP:?err}:4341
+      - SSH_TUNNEL_PATH=ws://${HOST_IP:?err}:4341
     command: sh -c "envsubst \"`env | awk -F = '{printf \" $$%s\", $$1}'`\" < /usr/share/nginx/html/appConfig.template > /usr/share/nginx/html/assets/appConfig.json && exec nginx -g 'daemon off;'"
   
   # Shh Tunnel, needed for the web UI SSH Terminal featur
