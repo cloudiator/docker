@@ -443,6 +443,7 @@ services:
       - PUBLIC_IP=${HOST_IP:?err}
       - SPARK_MASTER_UI_PORT=8181
       - SPARK_MASTER_PORT=7077
+      - SPARK_CONTAINER_VERSION
       - JMS_IP
       - JMS_PORT
       - APP_NAME
