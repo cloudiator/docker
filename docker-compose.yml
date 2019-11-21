@@ -120,6 +120,8 @@ services:
       - METRIC_PATTERN
       - METRIC_REPORTING_INTERVAL
       - INSTALLER_ALLUXIO_MASTER_HOST=${HOST_IP:?err}
+      - JMS_USER
+      - JMS_PASSWORD
     volumes:
       - ./install-agent:/home
 
@@ -446,6 +448,8 @@ services:
       - APP_NAME
       - METRIC_PATTERN
       - METRIC_REPORTING_INTERVAL
+      - JMS_USER
+      - JMS_PASSWORD
     #ports:
     #- 7077:7077
     #- 8181:8080

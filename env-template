@@ -16,6 +16,8 @@ HOST_IP=
 # APP_NAME=PythonPi
 # METRIC_PATTERN={"metricValue":"${metric.value}","timestamp":"${metric.timestamp}","metricName":"${metric.name}"}
 # METRIC_REPORTING_INTERVAL=30
+# JMS_USER=aaa
+# JMS_PASSWORD=111
 
 # Enable installation of Melodic-specific tools on nodes
 # DEPLOYMENT_INSTALL_MELODIC_TOOLS=true
