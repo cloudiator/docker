@@ -4,20 +4,23 @@ AUTH_MODE=SINGLE
 AUTH_TOKEN=secure
 HOST_IP=
 
-# INFLUX_URL=
-# INFLUX_PASSWORD
+
+# Statistics reporting 
+STATISTICS_ENABLED=true
+INFLUX_URL=dummy
+INFLUX_PASSWORD=topsecret
 
 # IMAGE_PREFIX=
 
-# Apache Spark monitoring
-# JMS_IP=
-# JMS_PORT=61616
-# DLMS_WEBSERVICE_PORT=8090
-# APP_NAME=PythonPi
-# METRIC_PATTERN={"metricValue":"${metric.value}","timestamp":"${metric.timestamp}","metricName":"${metric.name}"}
-# METRIC_REPORTING_INTERVAL=30
-# JMS_USER=aaa
-# JMS_PASSWORD=111
+# Apache Spark monitoring for Melodic via JMS, if not required stay with dummy values
+JMS_IP=localhost
+JMS_PORT=61616
+DLMS_WEBSERVICE_PORT=8090
+APP_NAME=PythonPi
+METRIC_PATTERN={"metricValue":"${metric.value}","timestamp":"${metric.timestamp}","metricName":"${metric.name}"}
+METRIC_REPORTING_INTERVAL=30
+JMS_USER=aaa
+JMS_PASSWORD=111
 
 # Enable installation of Melodic-specific tools on nodes
 # DEPLOYMENT_INSTALL_MELODIC_TOOLS=true
