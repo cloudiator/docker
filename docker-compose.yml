@@ -170,6 +170,7 @@ services:
       - STATISTICS_INFLUX_URL=${INFLUX_URL:?err}
       - STATISTICS_INFLUX_USER=cloudiator
       - STATISTICS_INFLUX_PASSWORD=${INFLUX_PASSWORD:?err}
+      - SCHEDULER_API=http://${HOST_IP:?err}:9000
 
   # Agent handling lance processes
   lance-agent:
