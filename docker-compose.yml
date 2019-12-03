@@ -26,8 +26,15 @@ services:
       - API_URL=http://${HOST_IP:?err}:9000
       - AUTH_MODE=${AUTH_MODE:?err}
       - AUTH_TOKEN=${AUTH_TOKEN:?err}
+      - SSH_TUNNEL_PATH=ws://${HOST_IP:?err}:4341
     command: sh -c "envsubst \"`env | awk -F = '{printf \" $$%s\", $$1}'`\" < /usr/share/nginx/html/appConfig.template > /usr/share/nginx/html/assets/appConfig.json && exec nginx -g 'daemon off;'"
-
+  
+  # Shh Tunnel, needed for the web UI SSH Terminal feature
+  ssh-tunnel:
+    image: shinikaze/ssh-web-proxy:latest
+    ports: 
+      - "4341:8080"
+  
   # Agent responsible for starting virtual machines
   vm-agent:
     depends_on:
@@ -43,10 +50,10 @@ services:
       - JPA_URL=jdbc:mysql://store:3306/vm
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - LOGSTASH_HOST=logstash:5000
-      - STATISTICS_ENABLED=true
-      - STATISTICS_INFLUX_URL=${INFLUX_URL:?err}
+      - STATISTICS_ENABLED=${STATISTICS_ENABLED:?STATISTICS_ENABLED not set!}
+      - STATISTICS_INFLUX_URL=${INFLUX_URL:?INFLUX_URL not set!}
       - STATISTICS_INFLUX_USER=cloudiator
-      - STATISTICS_INFLUX_PASSWORD=${INFLUX_PASSWORD:?err}
+      - STATISTICS_INFLUX_PASSWORD=${INFLUX_PASSWORD:?INFLUX_PASSWORD not set!}
       - VM_ENABLE_CLEANUP
 
   # Agent responsible for starting nodes
@@ -95,6 +102,7 @@ services:
       - INSTALLER_DOCKER_MTU_DOWNLOAD
       - INSTALLER_ALLUXIO_DOWNLOAD
       - INSTALLER_DLMSAGENT_DOWNLOAD
+      - INSTALLER_SPARK_CONTAINER_VERSION
       - INSTALLER_SPARK_MASTER_IP=${HOST_IP:?err}
       - INSTALLER_SPARK_MASTER_PORT=7077
       - INSTALLER_EMS_URL=https://${HOST_IP}:8111/baguette/registerNode
@@ -113,6 +121,8 @@ services:
       - METRIC_PATTERN
       - METRIC_REPORTING_INTERVAL
       - INSTALLER_ALLUXIO_MASTER_HOST=${HOST_IP:?err}
+      - JMS_USER
+      - JMS_PASSWORD
     volumes:
       - ./install-agent:/home
 
@@ -156,6 +166,11 @@ services:
       - JPA_PASSWORD=${DATABASE_PASSWORD:?err}
       - JPA_URL=jdbc:mysql://store:3306/schedule
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - STATISTICS_ENABLED=true
+      - STATISTICS_INFLUX_URL=${INFLUX_URL:?err}
+      - STATISTICS_INFLUX_USER=cloudiator
+      - STATISTICS_INFLUX_PASSWORD=${INFLUX_PASSWORD:?err}
+      - SCHEDULER_API=http://${HOST_IP:?err}:9000
 
   # Agent handling lance processes
   lance-agent:
@@ -427,14 +442,16 @@ services:
     image: ${IMAGE_PREFIX}cloudiator/spark-master:latest
     restart: always
     environment:
-      - PUBLIC_IP=${HOST_IP:?err}
+      - PUBLIC_IP=${HOST_IP:?HOST_IP not set!}
       - SPARK_MASTER_UI_PORT=8181
       - SPARK_MASTER_PORT=7077
-      - JMS_IP
-      - JMS_PORT
-      - APP_NAME
-      - METRIC_PATTERN
-      - METRIC_REPORTING_INTERVAL
+      - JMS_IP=${JMS_IP:?JMS_IP not set!}
+      - JMS_PORT=${JMS_PORT:?JMS_PORT not set!}
+      - APP_NAME=${APP_NAME:?APP_NAME not set!}
+      - METRIC_PATTERN=${METRIC_PATTERN:?METRIC_PATTERN not set!}
+      - METRIC_REPORTING_INTERVAL=${METRIC_REPORTING_INTERVAL:?METRIC_REPORTING_INTERVAL not set!}
+      - JMS_USER=${JMS_USER:?JMS_USER not set!}
+      - JMS_PASSWORD=${JMS_PASSWORD:?JMS_PASSWORD not set!}
     #ports:
     #- 7077:7077
     #- 8181:8080
